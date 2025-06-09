@@ -8,7 +8,7 @@ const openTabsList = document.getElementById('openTabs');
 const darkToggle = document.getElementById('darkToggle');
 const themeColorInput = document.getElementById('themeColor');
 
-chrome.storage.sync.get({ darkMode: false, themeColor: '#6200ee' }, data => {
+chrome.storage.sync.get({ darkMode: false, themeColor: '#4A399D' }, data => {
   if (data.darkMode) document.body.classList.add('dark');
   darkToggle.checked = data.darkMode;
   document.documentElement.style.setProperty('--primary', data.themeColor);
@@ -27,12 +27,12 @@ chrome.storage.sync.set({ themeColor: themeColorInput.value });
 
 function getCategoryData(cats, cat) {
   if (!cats[cat]) {
-    cats[cat] = { tabs: [], color: '#fff', icon: 'folder' };
+    cats[cat] = { tabs: [], color: '', icon: 'folder' };
   } else if (Array.isArray(cats[cat])) {
-    cats[cat] = { tabs: cats[cat], color: '#fff', icon: 'folder' };
+    cats[cat] = { tabs: cats[cat], color: '', icon: 'folder' };
   } else {
     cats[cat].tabs = cats[cat].tabs || [];
-    cats[cat].color = cats[cat].color || '#fff';
+    cats[cat].color = cats[cat].color || '';
     cats[cat].icon = cats[cat].icon || 'folder';
   }
   return cats[cat];
@@ -98,7 +98,7 @@ function loadCategories() {
 const card = document.createElement('div');
 card.className = 'category-card';
 const catData = getCategoryData(cats, cat);
-card.style.background = catData.color;
+card.style.background = !catData.color || catData.color === '#fff' ? 'var(--card-bg)' : catData.color;
 card.draggable = true;
 card.addEventListener('dragstart', e => {
   e.dataTransfer.setData('text/plain', cat);
@@ -117,7 +117,7 @@ card.addEventListener('drop', e => {
     icon.className = 'material-icons category-icon';
     icon.textContent = catData.icon;
     const title = document.createElement('h2');
-    title.textContent = `${cat} (${catData.tabs.length})`;
+    title.textContent = cat;
     const editBtn = document.createElement('button');
     editBtn.textContent = '✎';
     editBtn.title = 'Edit category';
