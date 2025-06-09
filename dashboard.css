@@ -1,5 +1,5 @@
 :root {
-  --primary: #6200ee;
+  --primary: #4A399D;
   --bg: #f0f2f5;
   --card-bg: #fff;
   --text: #000;
@@ -165,11 +165,12 @@ main#dashboard {
 
 #categories {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 15px;
   padding: 20px;
   overflow-y: auto;
+  align-content: flex-start;
 }
 .category-card {
   background: var(--card-bg);
@@ -181,6 +182,7 @@ main#dashboard {
   resize: horizontal;
   overflow: auto;
   min-width: 200px;
+  flex: 0 0 auto;
 }
 .category-header {
 display: flex;
