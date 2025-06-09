@@ -9,12 +9,17 @@
     <header>
         <h1>Tab Manager</h1>
         <div id="controls">
-            <label id="dark-label" class="switch">
-                <input type="checkbox" id="darkToggle">
-                <span class="slider"></span>
+            <div id="dark-control">
+                <label class="switch">
+                    <input type="checkbox" id="darkToggle">
+                    <span class="slider"></span>
+                </label>
                 <span class="label-text">Dark Mode</span>
-            </label>
-            <input type="color" id="themeColor" title="Theme Color">
+            </div>
+            <div id="theme-control">
+                <label for="themeColor">Theme</label>
+                <input type="color" id="themeColor" title="Theme Color">
+            </div>
             <div id="add-control">
                 <input type="text" id="newCategory" placeholder="New category" />
                 <button id="addCategory">Add</button>
