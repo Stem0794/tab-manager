@@ -4,6 +4,35 @@ document.addEventListener('DOMContentLoaded', () => {
 const newCatInput = document.getElementById('newCategory');
 const addCatBtn = document.getElementById('addCategory');
 const categoriesContainer = document.getElementById('categories');
+const openTabsList = document.getElementById('openTabs');
+
+// Load currently open tabs
+function loadOpenTabs() {
+  chrome.tabs.query({ currentWindow: true }, tabs => {
+    openTabsList.innerHTML = '';
+    tabs.forEach(tab => {
+      const li = document.createElement('li');
+      li.textContent = tab.title || tab.url;
+      li.draggable = true;
+      li.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({ url: tab.url, title: tab.title }));
+      });
+      openTabsList.appendChild(li);
+    });
+  });
+}
+
+// Add a tab record to a category
+function addTabToCategory(cat, tab) {
+  chrome.storage.sync.get({ categories: {} }, data => {
+    const cats = data.categories;
+    if (!cats[cat]) cats[cat] = [];
+    if (!cats[cat].some(t => t.url === tab.url)) {
+      cats[cat].push(tab);
+    }
+    chrome.storage.sync.set({ categories: cats }, loadCategories);
+  });
+}
 
 // Load and render categories
 function loadCategories() {
@@ -31,6 +60,12 @@ card.className = 'category-card';
     // Tab list
     const ul = document.createElement('ul');
     ul.className = 'tab-list';
+    ul.addEventListener('dragover', e => e.preventDefault());
+    ul.addEventListener('drop', e => {
+      e.preventDefault();
+      const data = e.dataTransfer.getData('text/plain');
+      if (data) addTabToCategory(cat, JSON.parse(data));
+    });
     cats[cat].forEach(tab => {
       const li = document.createElement('li');
       const a = document.createElement('a');
@@ -41,6 +76,23 @@ card.className = 'category-card';
       ul.appendChild(li);
     });
     card.appendChild(ul);
+
+    const manual = document.createElement('div');
+    manual.className = 'manual-add';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.placeholder = 'Add URL';
+    const btn = document.createElement('button');
+    btn.textContent = 'Add';
+    btn.onclick = () => {
+      const url = inp.value.trim();
+      if (url) {
+        addTabToCategory(cat, { url, title: url });
+        inp.value = '';
+      }
+    };
+    manual.append(inp, btn);
+    card.appendChild(manual);
 
     // Open and save buttons
     const openBtn = document.createElement('button');
@@ -64,7 +116,8 @@ const cats = data.categories;
 if (!cats[cat]) cats[cat] = [];
 chrome.storage.sync.set({ categories: cats }, () => {
 newCatInput.value = '';
-loadCategories();
+  loadOpenTabs();
+  loadCategories();
 });
 });
 };
@@ -111,6 +164,7 @@ if (cat) saveTabs(cat);
 }
 });
 
+loadOpenTabs();
 loadCategories();
 });
 

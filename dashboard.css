@@ -22,11 +22,38 @@ padding: 5px;
 padding: 5px 10px;
 margin-left: 5px;
 }
-main#categories {
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-gap: 15px;
-padding: 20px;
+main#dashboard {
+  display: flex;
+  height: calc(100vh - 60px);
+}
+
+#open-tabs {
+  width: 250px;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+#openTabs {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#openTabs li {
+  padding: 5px;
+  cursor: grab;
+  border-bottom: 1px solid #eee;
+}
+
+#categories {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 20px;
+  overflow-y: auto;
 }
 .category-card {
 background: #fff;
@@ -68,8 +95,23 @@ color: #333;
 font-size: 14px;
 }
 .open-btn {
-margin-top: 10px;
-padding: 5px;
-align-self: flex-end;
+  margin-top: 10px;
+  padding: 5px;
+  align-self: flex-end;
+}
+
+.manual-add {
+  margin-top: 10px;
+  display: flex;
+}
+
+.manual-add input {
+  flex: 1;
+  padding: 5px;
+}
+
+.manual-add button {
+  margin-left: 5px;
+  padding: 5px 10px;
 }
 
