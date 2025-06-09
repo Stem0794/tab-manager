@@ -5,6 +5,25 @@ const newCatInput = document.getElementById('newCategory');
 const addCatBtn = document.getElementById('addCategory');
 const categoriesContainer = document.getElementById('categories');
 const openTabsList = document.getElementById('openTabs');
+const darkToggle = document.getElementById('darkToggle');
+const themeColorInput = document.getElementById('themeColor');
+
+chrome.storage.sync.get({ darkMode: false, themeColor: '#6200ee' }, data => {
+  if (data.darkMode) document.body.classList.add('dark');
+  darkToggle.checked = data.darkMode;
+  document.documentElement.style.setProperty('--primary', data.themeColor);
+  themeColorInput.value = data.themeColor;
+});
+
+darkToggle.addEventListener('change', () => {
+  document.body.classList.toggle('dark', darkToggle.checked);
+  chrome.storage.sync.set({ darkMode: darkToggle.checked });
+});
+
+themeColorInput.addEventListener('input', () => {
+  document.documentElement.style.setProperty('--primary', themeColorInput.value);
+  chrome.storage.sync.set({ themeColor: themeColorInput.value });
+});
 
 // Load currently open tabs
 function loadOpenTabs() {
@@ -42,6 +61,14 @@ function addTabToCategory(cat, tab) {
       });
     }
     chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
+  });
+}
+
+function renameTab(cat, index, title) {
+  chrome.storage.sync.get({ categories: {} }, data => {
+    if (!data.categories[cat] || !data.categories[cat][index]) return;
+    data.categories[cat][index].title = title;
+    chrome.storage.sync.set({ categories: data.categories }, loadCategories);
   });
 }
 
@@ -89,7 +116,7 @@ card.addEventListener('drop', e => {
       const data = e.dataTransfer.getData('text/plain');
       if (data) addTabToCategory(cat, JSON.parse(data));
     });
-    cats[cat].forEach(tab => {
+    cats[cat].forEach((tab, idx) => {
       const li = document.createElement('li');
       const img = document.createElement('img');
       img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
@@ -98,7 +125,15 @@ card.addEventListener('drop', e => {
       a.href = tab.url;
       a.textContent = tab.title;
       a.target = '_blank';
-      li.append(img, a);
+      const rename = document.createElement('button');
+      rename.textContent = '✎';
+      rename.title = 'Rename tab';
+      rename.className = 'rename-btn';
+      rename.onclick = () => {
+        const nt = prompt('New title', tab.title);
+        if (nt) renameTab(cat, idx, nt);
+      };
+      li.append(img, a, rename);
       ul.appendChild(li);
     });
     card.appendChild(ul);
