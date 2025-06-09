@@ -261,14 +261,43 @@ function reorderCategories(fromCat, toCat) {
   });
 }
 
+function showEmojiPicker(current) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'emoji-overlay';
+    const picker = document.createElement('div');
+    picker.className = 'emoji-picker';
+    const emojis =
+      '😀 😃 😄 😁 😆 😅 😂 🙂 🙃 😉 😊 😇 😍 🤩 😋 😜 🤪 🤔 😎 😕 😢 😭 😡 👍 👎 ⭐ ⚡ 🎉'.split(' ');
+    emojis.forEach(e => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      btn.textContent = e;
+      btn.onclick = () => {
+        document.body.removeChild(overlay);
+        resolve(e);
+      };
+      picker.appendChild(btn);
+    });
+    overlay.addEventListener('click', evt => {
+      if (evt.target === overlay) {
+        document.body.removeChild(overlay);
+        resolve(current);
+      }
+    });
+    overlay.appendChild(picker);
+    document.body.appendChild(overlay);
+  });
+}
+
 function editCategory(oldName) {
-  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
+  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, async data => {
     const cats = data.categories;
     const order = data.categoryOrder;
     const catData = getCategoryData(cats, oldName);
     const newName = prompt('Category name', oldName);
     if (!newName) return;
-    const newIcon = prompt('Icon name (material icon)', catData.icon) || catData.icon;
+    const newIcon = await showEmojiPicker(catData.icon);
     const newColor = prompt('Background color', catData.color) || catData.color;
     catData.icon = newIcon;
     catData.color = newColor;
