@@ -65,9 +65,10 @@ function addTabToCategory(cat, tab) {
 }
 
 function renameTab(cat, index, title) {
+  const idx = parseInt(index, 10);
   chrome.storage.sync.get({ categories: {} }, data => {
-    if (!data.categories[cat] || !data.categories[cat][index]) return;
-    data.categories[cat][index].title = title;
+    if (!data.categories[cat] || !data.categories[cat][idx]) return;
+    data.categories[cat][idx].title = title;
     chrome.storage.sync.set({ categories: data.categories }, loadCategories);
   });
 }
@@ -129,7 +130,8 @@ card.addEventListener('drop', e => {
       rename.textContent = '✎';
       rename.title = 'Rename tab';
       rename.className = 'rename-btn';
-      rename.onclick = () => {
+      rename.onclick = e => {
+        e.stopPropagation();
         const nt = prompt('New title', tab.title);
         if (nt) renameTab(cat, idx, nt);
       };
