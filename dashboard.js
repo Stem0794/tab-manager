@@ -22,8 +22,21 @@ darkToggle.addEventListener('change', () => {
 
 themeColorInput.addEventListener('input', () => {
   document.documentElement.style.setProperty('--primary', themeColorInput.value);
-  chrome.storage.sync.set({ themeColor: themeColorInput.value });
+chrome.storage.sync.set({ themeColor: themeColorInput.value });
 });
+
+function getCategoryData(cats, cat) {
+  if (!cats[cat]) {
+    cats[cat] = { tabs: [], color: '#fff', icon: 'folder' };
+  } else if (Array.isArray(cats[cat])) {
+    cats[cat] = { tabs: cats[cat], color: '#fff', icon: 'folder' };
+  } else {
+    cats[cat].tabs = cats[cat].tabs || [];
+    cats[cat].color = cats[cat].color || '#fff';
+    cats[cat].icon = cats[cat].icon || 'folder';
+  }
+  return cats[cat];
+}
 
 // Load currently open tabs
 function loadOpenTabs() {
@@ -51,10 +64,10 @@ function addTabToCategory(cat, tab) {
   chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
     const cats = data.categories;
     const order = data.categoryOrder;
-    if (!cats[cat]) cats[cat] = [];
+    const catData = getCategoryData(cats, cat);
     if (!order.includes(cat)) order.push(cat);
-    if (!cats[cat].some(t => t.url === tab.url)) {
-      cats[cat].push({
+    if (!catData.tabs.some(t => t.url === tab.url)) {
+      catData.tabs.push({
         url: tab.url,
         title: tab.title || tab.url,
         favIconUrl: tab.favIconUrl || ''
@@ -67,8 +80,9 @@ function addTabToCategory(cat, tab) {
 function renameTab(cat, index, title) {
   const idx = parseInt(index, 10);
   chrome.storage.sync.get({ categories: {} }, data => {
-    if (!data.categories[cat] || !data.categories[cat][idx]) return;
-    data.categories[cat][idx].title = title;
+    const catData = getCategoryData(data.categories, cat);
+    if (!catData.tabs[idx]) return;
+    catData.tabs[idx].title = title;
     chrome.storage.sync.set({ categories: data.categories }, loadCategories);
   });
 }
@@ -83,6 +97,8 @@ function loadCategories() {
     ordered.forEach(cat => {
 const card = document.createElement('div');
 card.className = 'category-card';
+const catData = getCategoryData(cats, cat);
+card.style.background = catData.color;
 card.draggable = true;
 card.addEventListener('dragstart', e => {
   e.dataTransfer.setData('text/plain', cat);
@@ -97,15 +113,22 @@ card.addEventListener('drop', e => {
     // Header
     const header = document.createElement('div');
     header.className = 'category-header';
+    const icon = document.createElement('span');
+    icon.className = 'material-icons category-icon';
+    icon.textContent = catData.icon;
     const title = document.createElement('h2');
-    title.textContent = `${cat} (${cats[cat].length})`;
+    title.textContent = `${cat} (${catData.tabs.length})`;
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '✎';
+    editBtn.title = 'Edit category';
+    editBtn.onclick = () => editCategory(cat);
     const delBtn = document.createElement('button');
     delBtn.textContent = '✕';
     delBtn.title = 'Delete category';
     delBtn.onclick = () => {
       deleteCategory(cat);
     };
-    header.append(title, delBtn);
+    header.append(icon, title, editBtn, delBtn);
     card.append(header);
 
     // Tab list
@@ -117,7 +140,7 @@ card.addEventListener('drop', e => {
       const data = e.dataTransfer.getData('text/plain');
       if (data) addTabToCategory(cat, JSON.parse(data));
     });
-    cats[cat].forEach((tab, idx) => {
+    catData.tabs.forEach((tab, idx) => {
       const li = document.createElement('li');
       const img = document.createElement('img');
       img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
@@ -177,7 +200,7 @@ if (!cat) return;
 chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
 const cats = data.categories;
 const order = data.categoryOrder;
-if (!cats[cat]) cats[cat] = [];
+getCategoryData(cats, cat); // initialize with defaults
 if (!order.includes(cat)) order.push(cat);
 chrome.storage.sync.set({ categories: cats, categoryOrder: order }, () => {
 newCatInput.value = '';
@@ -205,7 +228,8 @@ chrome.tabs.query({}, tabs => {
 chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
 const cats = data.categories;
 const order = data.categoryOrder;
-cats[cat] = tabs.map(t => ({ url: t.url, title: t.title, favIconUrl: t.favIconUrl || '' }));
+const catData = getCategoryData(cats, cat);
+catData.tabs = tabs.map(t => ({ url: t.url, title: t.title, favIconUrl: t.favIconUrl || '' }));
 if (!order.includes(cat)) order.push(cat);
 chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
 });
@@ -215,7 +239,8 @@ chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategori
 // Open all tabs in category
 function openCategory(cat) {
 chrome.storage.sync.get({ categories: {} }, data => {
-data.categories[cat].forEach(tab => chrome.tabs.create({ url: tab.url }));
+const catData = getCategoryData(data.categories, cat);
+catData.tabs.forEach(tab => chrome.tabs.create({ url: tab.url }));
 });
 }
 
@@ -227,6 +252,27 @@ function reorderCategories(fromCat, toCat) {
     if (fromIdx === -1 || toIdx === -1) return;
     order.splice(toIdx, 0, order.splice(fromIdx, 1)[0]);
     chrome.storage.sync.set({ categoryOrder: order }, loadCategories);
+  });
+}
+
+function editCategory(oldName) {
+  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
+    const cats = data.categories;
+    const order = data.categoryOrder;
+    const catData = getCategoryData(cats, oldName);
+    const newName = prompt('Category name', oldName);
+    if (!newName) return;
+    const newIcon = prompt('Icon name (material icon)', catData.icon) || catData.icon;
+    const newColor = prompt('Background color', catData.color) || catData.color;
+    catData.icon = newIcon;
+    catData.color = newColor;
+    if (newName !== oldName) {
+      cats[newName] = catData;
+      delete cats[oldName];
+      const idx = order.indexOf(oldName);
+      if (idx > -1) order[idx] = newName;
+    }
+    chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
   });
 }
 
