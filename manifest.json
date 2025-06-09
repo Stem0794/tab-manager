@@ -9,5 +9,8 @@
 },
 "icons": {
 "16": "icon.png"
+},
+"content_security_policy": {
+  "extension_pages": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'"
 }
 }

@@ -149,8 +149,22 @@ card.addEventListener('drop', e => {
     ul.addEventListener('dragover', e => e.preventDefault());
     ul.addEventListener('drop', e => {
       e.preventDefault();
-      const data = e.dataTransfer.getData('text/plain');
-      if (data) addTabToCategory(cat, JSON.parse(data));
+      const plain = e.dataTransfer.getData('text/plain');
+      const uri = e.dataTransfer.getData('text/uri-list');
+      let tabData = null;
+      if (plain) {
+        try {
+          const obj = JSON.parse(plain);
+          if (obj && obj.url) tabData = obj;
+        } catch (err) {
+          // ignore JSON parse errors and treat as plain URL below
+        }
+      }
+      const url = tabData ? null : (uri || plain);
+      if (!tabData && url) {
+        tabData = { url, title: url, favIconUrl: '' };
+      }
+      if (tabData) addTabToCategory(cat, tabData);
     });
     catData.tabs.forEach((tab, idx) => {
       const li = document.createElement('li');
