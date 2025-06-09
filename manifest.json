@@ -3,7 +3,7 @@
 "name": "Tab Manager Dashboard",
 "description": "Group tabs under categories and open them quickly via a New Tab dashboard",
 "version": "1.0",
-"permissions": ["tabs", "storage"],
+  "permissions": ["tabs", "storage", "contextMenus"],
 "chrome_url_overrides": {
 "newtab": "dashboard.html"
 },
