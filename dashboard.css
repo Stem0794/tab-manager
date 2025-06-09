@@ -185,10 +185,11 @@ main#dashboard {
   flex: 0 0 auto;
 }
 .category-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 6px;
 }
 .category-header h2 {
 font-size: 18px;
@@ -200,6 +201,14 @@ margin: 0;
   cursor: pointer;
   font-size: 18px;
   color: var(--text);
+}
+.color-input {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 .category-icon {
   margin-right: 6px;

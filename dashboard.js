@@ -123,15 +123,24 @@ card.addEventListener('drop', e => {
     title.textContent = cat;
     const editBtn = document.createElement('button');
     editBtn.textContent = '✎';
-    editBtn.title = 'Edit category';
-    editBtn.onclick = () => editCategory(cat);
+    editBtn.title = 'Edit category name';
+    editBtn.onclick = () => renameCategory(cat);
     const delBtn = document.createElement('button');
     delBtn.textContent = '✕';
     delBtn.title = 'Delete category';
     delBtn.onclick = () => {
       deleteCategory(cat);
     };
-    header.append(icon, title, editBtn, delBtn);
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.className = 'color-input';
+    colorInput.value = catData.color || '#ffffff';
+    colorInput.title = 'Category color';
+    colorInput.oninput = () => setCategoryColor(cat, colorInput.value);
+
+    icon.onclick = () => updateCategoryIcon(cat);
+
+    header.append(icon, title, editBtn, delBtn, colorInput);
     card.append(header);
 
     // Tab list
@@ -290,24 +299,34 @@ function showEmojiPicker(current) {
   });
 }
 
-function editCategory(oldName) {
-  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, async data => {
+function renameCategory(oldName) {
+  const newName = prompt('Category name', oldName);
+  if (!newName || newName === oldName) return;
+  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
     const cats = data.categories;
     const order = data.categoryOrder;
     const catData = getCategoryData(cats, oldName);
-    const newName = prompt('Category name', oldName);
-    if (!newName) return;
-    const newIcon = await showEmojiPicker(catData.icon);
-    const newColor = prompt('Background color', catData.color) || catData.color;
-    catData.icon = newIcon;
-    catData.color = newColor;
-    if (newName !== oldName) {
-      cats[newName] = catData;
-      delete cats[oldName];
-      const idx = order.indexOf(oldName);
-      if (idx > -1) order[idx] = newName;
-    }
+    cats[newName] = catData;
+    delete cats[oldName];
+    const idx = order.indexOf(oldName);
+    if (idx > -1) order[idx] = newName;
     chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
+  });
+}
+
+function updateCategoryIcon(cat) {
+  chrome.storage.sync.get({ categories: {} }, async data => {
+    const catData = getCategoryData(data.categories, cat);
+    catData.icon = await showEmojiPicker(catData.icon);
+    chrome.storage.sync.set({ categories: data.categories }, loadCategories);
+  });
+}
+
+function setCategoryColor(cat, color) {
+  chrome.storage.sync.get({ categories: {} }, data => {
+    const catData = getCategoryData(data.categories, cat);
+    catData.color = color;
+    chrome.storage.sync.set({ categories: data.categories }, loadCategories);
   });
 }
 
