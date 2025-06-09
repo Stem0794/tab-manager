@@ -278,6 +278,38 @@ async function showEmojiPicker(current) {
     picker.addEventListener('emoji-click', e => {
       overlay.remove();
       resolve(e.detail.unicode);
+    const picker = document.createElement('div');
+    picker.className = 'emoji-picker';
+
+    function generateEmojiList() {
+      const ranges = [
+        [0x1f600, 0x1f64f],
+        [0x1f300, 0x1f5ff],
+        [0x1f680, 0x1f6ff],
+        [0x2600, 0x26ff],
+        [0x2700, 0x27bf],
+        [0x1f900, 0x1f9ff],
+        [0x1fa70, 0x1faff]
+      ];
+      const all = [];
+      for (const [start, end] of ranges) {
+        for (let cp = start; cp <= end; cp++) {
+          all.push(String.fromCodePoint(cp));
+        }
+      }
+      return all;
+    }
+
+    const emojis = generateEmojiList();
+    emojis.forEach(e => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      btn.textContent = e;
+      btn.onclick = () => {
+        document.body.removeChild(overlay);
+        resolve(e);
+      };
+      picker.appendChild(btn);
     });
     overlay.addEventListener('click', evt => {
       if (evt.target === overlay) {

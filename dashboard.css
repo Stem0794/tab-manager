@@ -185,6 +185,10 @@ main#dashboard {
   flex: 0 0 auto;
 }
 .category-header {
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: center;
