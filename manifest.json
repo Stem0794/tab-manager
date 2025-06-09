@@ -1,0 +1,15 @@
+{
+"manifest_version": 3,
+"name": "Tab Manager Dashboard",
+"description": "Group tabs under categories and open them quickly via a New Tab dashboard",
+"version": "1.0",
+"permissions": ["tabs", "storage"],
+"chrome_url_overrides": {
+"newtab": "dashboard.html"
+},
+"icons": {
+"16": "icons/icon16.png",
+"48": "icons/icon48.png",
+"128": "icons/icon128.png"
+}
+}
