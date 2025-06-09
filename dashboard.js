@@ -270,10 +270,14 @@ function reorderCategories(fromCat, toCat) {
   });
 }
 
-function showEmojiPicker(current) {
+async function showEmojiPicker(current) {
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.className = 'emoji-overlay';
+    const picker = document.createElement('emoji-picker');
+    picker.addEventListener('emoji-click', e => {
+      overlay.remove();
+      resolve(e.detail.unicode);
     const picker = document.createElement('div');
     picker.className = 'emoji-picker';
 
@@ -309,12 +313,13 @@ function showEmojiPicker(current) {
     });
     overlay.addEventListener('click', evt => {
       if (evt.target === overlay) {
-        document.body.removeChild(overlay);
+        overlay.remove();
         resolve(current);
       }
     });
     overlay.appendChild(picker);
     document.body.appendChild(overlay);
+    picker.focus();
   });
 }
 
