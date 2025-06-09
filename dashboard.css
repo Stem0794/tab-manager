@@ -178,6 +178,9 @@ main#dashboard {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  resize: horizontal;
+  overflow: auto;
+  min-width: 200px;
 }
 .category-header {
 display: flex;
@@ -190,10 +193,14 @@ font-size: 18px;
 margin: 0;
 }
 .category-header button {
-background: none;
-border: none;
-cursor: pointer;
-font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text);
+}
+.category-icon {
+  margin-right: 6px;
 }
 .tab-list {
 list-style: none;
