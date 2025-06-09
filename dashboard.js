@@ -12,7 +12,12 @@ function loadOpenTabs() {
     openTabsList.innerHTML = '';
     tabs.forEach(tab => {
       const li = document.createElement('li');
-      li.textContent = tab.title || tab.url;
+      const img = document.createElement('img');
+      img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
+      img.className = 'favicon';
+      const span = document.createElement('span');
+      span.textContent = tab.title || tab.url;
+      li.append(img, span);
       li.draggable = true;
       li.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', JSON.stringify({ url: tab.url, title: tab.title }));
@@ -68,11 +73,14 @@ card.className = 'category-card';
     });
     cats[cat].forEach(tab => {
       const li = document.createElement('li');
+      const img = document.createElement('img');
+      img.src = `chrome://favicon/${tab.url}`;
+      img.className = 'favicon';
       const a = document.createElement('a');
       a.href = tab.url;
       a.textContent = tab.title;
       a.target = '_blank';
-      li.appendChild(a);
+      li.append(img, a);
       ul.appendChild(li);
     });
     card.appendChild(ul);

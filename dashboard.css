@@ -45,6 +45,8 @@ main#dashboard {
   padding: 5px;
   cursor: grab;
   border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
 }
 
 #categories {
@@ -87,12 +89,20 @@ flex-grow: 1;
 overflow-y: auto;
 }
 .tab-list li {
-margin-bottom: 5px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
 }
 .tab-list li a {
-text-decoration: none;
-color: #333;
-font-size: 14px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+}
+
+.favicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
 }
 .open-btn {
   margin-top: 10px;
