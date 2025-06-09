@@ -20,7 +20,7 @@ function loadOpenTabs() {
       li.append(img, span);
       li.draggable = true;
       li.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', JSON.stringify({ url: tab.url, title: tab.title }));
+        e.dataTransfer.setData('text/plain', JSON.stringify({ url: tab.url, title: tab.title, favIconUrl: tab.favIconUrl }));
       });
       openTabsList.appendChild(li);
     });
@@ -29,24 +29,42 @@ function loadOpenTabs() {
 
 // Add a tab record to a category
 function addTabToCategory(cat, tab) {
-  chrome.storage.sync.get({ categories: {} }, data => {
+  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
     const cats = data.categories;
+    const order = data.categoryOrder;
     if (!cats[cat]) cats[cat] = [];
+    if (!order.includes(cat)) order.push(cat);
     if (!cats[cat].some(t => t.url === tab.url)) {
-      cats[cat].push(tab);
+      cats[cat].push({
+        url: tab.url,
+        title: tab.title || tab.url,
+        favIconUrl: tab.favIconUrl || ''
+      });
     }
-    chrome.storage.sync.set({ categories: cats }, loadCategories);
+    chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
   });
 }
 
 // Load and render categories
 function loadCategories() {
-chrome.storage.sync.get({ categories: {} }, data => {
-const cats = data.categories;
-categoriesContainer.innerHTML = '';
-Object.keys(cats).forEach(cat => {
+  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
+    const cats = data.categories;
+    const order = data.categoryOrder;
+    categoriesContainer.innerHTML = '';
+    const ordered = order.filter(c => cats[c]).concat(Object.keys(cats).filter(c => !order.includes(c)));
+    ordered.forEach(cat => {
 const card = document.createElement('div');
 card.className = 'category-card';
+card.draggable = true;
+card.addEventListener('dragstart', e => {
+  e.dataTransfer.setData('text/plain', cat);
+});
+card.addEventListener('dragover', e => e.preventDefault());
+card.addEventListener('drop', e => {
+  e.preventDefault();
+  const from = e.dataTransfer.getData('text/plain');
+  if (from) reorderCategories(from, cat);
+});
 
     // Header
     const header = document.createElement('div');
@@ -74,7 +92,7 @@ card.className = 'category-card';
     cats[cat].forEach(tab => {
       const li = document.createElement('li');
       const img = document.createElement('img');
-      img.src = `chrome://favicon/${tab.url}`;
+      img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
       img.className = 'favicon';
       const a = document.createElement('a');
       a.href = tab.url;
@@ -95,7 +113,7 @@ card.className = 'category-card';
     btn.onclick = () => {
       const url = inp.value.trim();
       if (url) {
-        addTabToCategory(cat, { url, title: url });
+        addTabToCategory(cat, { url, title: url, favIconUrl: '' });
         inp.value = '';
       }
     };
@@ -119,10 +137,12 @@ card.className = 'category-card';
 addCatBtn.onclick = () => {
 const cat = newCatInput.value.trim();
 if (!cat) return;
-chrome.storage.sync.get({ categories: {} }, data => {
+chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
 const cats = data.categories;
+const order = data.categoryOrder;
 if (!cats[cat]) cats[cat] = [];
-chrome.storage.sync.set({ categories: cats }, () => {
+if (!order.includes(cat)) order.push(cat);
+chrome.storage.sync.set({ categories: cats, categoryOrder: order }, () => {
 newCatInput.value = '';
   loadOpenTabs();
   loadCategories();
@@ -132,20 +152,25 @@ newCatInput.value = '';
 
 // Delete category
 function deleteCategory(cat) {
-chrome.storage.sync.get({ categories: {} }, data => {
+chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
 const cats = data.categories;
+const order = data.categoryOrder;
 delete cats[cat];
-chrome.storage.sync.set({ categories: cats }, loadCategories);
+const idx = order.indexOf(cat);
+if (idx > -1) order.splice(idx, 1);
+chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
 });
 }
 
 // Save current tabs
 function saveTabs(cat) {
 chrome.tabs.query({}, tabs => {
-chrome.storage.sync.get({ categories: {} }, data => {
+chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
 const cats = data.categories;
-cats[cat] = tabs.map(t => ({ url: t.url, title: t.title }));
-chrome.storage.sync.set({ categories: cats }, loadCategories);
+const order = data.categoryOrder;
+cats[cat] = tabs.map(t => ({ url: t.url, title: t.title, favIconUrl: t.favIconUrl || '' }));
+if (!order.includes(cat)) order.push(cat);
+chrome.storage.sync.set({ categories: cats, categoryOrder: order }, loadCategories);
 });
 });
 }
@@ -155,6 +180,17 @@ function openCategory(cat) {
 chrome.storage.sync.get({ categories: {} }, data => {
 data.categories[cat].forEach(tab => chrome.tabs.create({ url: tab.url }));
 });
+}
+
+function reorderCategories(fromCat, toCat) {
+  chrome.storage.sync.get({ categoryOrder: [] }, data => {
+    const order = data.categoryOrder;
+    const fromIdx = order.indexOf(fromCat);
+    const toIdx = order.indexOf(toCat);
+    if (fromIdx === -1 || toIdx === -1) return;
+    order.splice(toIdx, 0, order.splice(fromIdx, 1)[0]);
+    chrome.storage.sync.set({ categoryOrder: order }, loadCategories);
+  });
 }
 
 // Context menu for saving tabs

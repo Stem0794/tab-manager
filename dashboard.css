@@ -1,26 +1,40 @@
+:root {
+  --primary: #6200ee;
+  --bg: #f0f2f5;
+  --card-bg: #fff;
+}
+
 body {
-font-family: Arial, sans-serif;
-margin: 0;
-padding: 0;
-background: #f5f5f5;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
 }
 header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 10px 20px;
-background: #fff;
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 header h1 {
 font-size: 24px;
 }
 #add-control input {
-padding: 5px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 #add-control button {
-padding: 5px 10px;
-margin-left: 5px;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--primary);
+  cursor: pointer;
 }
 main#dashboard {
   display: flex;
@@ -33,6 +47,7 @@ main#dashboard {
   padding: 10px;
   overflow-y: auto;
   background: #fafafa;
+  background: var(--card-bg);
 }
 
 #openTabs {
@@ -58,12 +73,12 @@ main#dashboard {
   overflow-y: auto;
 }
 .category-card {
-background: #fff;
-border-radius: 8px;
-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-padding: 10px;
-display: flex;
-flex-direction: column;
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
 }
 .category-header {
 display: flex;
@@ -106,8 +121,13 @@ overflow-y: auto;
 }
 .open-btn {
   margin-top: 10px;
-  padding: 5px;
+  padding: 5px 10px;
   align-self: flex-end;
+  border: none;
+  border-radius: 4px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
 }
 
 .manual-add {
@@ -118,10 +138,17 @@ overflow-y: auto;
 .manual-add input {
   flex: 1;
   padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 .manual-add button {
   margin-left: 5px;
   padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
 }
 
