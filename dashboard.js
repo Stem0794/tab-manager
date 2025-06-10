@@ -80,11 +80,8 @@ function addTabToCategory(cat, tab) {
 function renameTab(cat, index, title) {
   const idx = Number(index);
   chrome.storage.sync.get({ categories: {} }, data => {
-    const tabs = data.categories[cat];
-    if (!Array.isArray(tabs) || idx < 0 || idx >= tabs.length) return;
-    tabs[idx].title = title;
     const catData = getCategoryData(data.categories, cat);
-    if (!catData.tabs[idx]) return;
+    if (idx < 0 || idx >= catData.tabs.length) return;
     catData.tabs[idx].title = title;
     chrome.storage.sync.set({ categories: data.categories }, loadCategories);
   });
@@ -95,13 +92,20 @@ function loadCategories() {
   chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
     const cats = data.categories;
     const order = data.categoryOrder;
+    const existingWidths = {};
+    categoriesContainer.querySelectorAll('.category-card').forEach(c => {
+      const name = c.dataset.cat;
+      if (name) existingWidths[name] = c.style.width;
+    });
     categoriesContainer.innerHTML = '';
     const ordered = order.filter(c => cats[c]).concat(Object.keys(cats).filter(c => !order.includes(c)));
     ordered.forEach(cat => {
 const card = document.createElement('div');
 card.className = 'category-card';
+card.dataset.cat = cat;
 const catData = getCategoryData(cats, cat);
 card.style.background = !catData.color || catData.color === '#fff' ? 'var(--card-bg)' : catData.color;
+card.style.width = existingWidths[cat] || '';
 card.draggable = true;
 card.addEventListener('dragstart', e => {
   e.dataTransfer.setData('text/plain', cat);
@@ -285,6 +289,9 @@ function reorderCategories(fromCat, toCat) {
 }
 
 async function showEmojiPicker(current) {
+  if (!customElements.get('emoji-picker')) {
+    await import('https://cdn.jsdelivr.net/npm/emoji-picker-element@^1');
+  }
   return new Promise(resolve => {
     const overlay = document.createElement('div');
     overlay.className = 'emoji-overlay';
