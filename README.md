@@ -14,7 +14,8 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 
 ## Preview
 
-<img alt="Dashboard Screenshot" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAKb+RoYAAAAASUVORK5CYII=" />
+<img width="1440" alt="Dashboard Screenshot" src="https://github.com/user-attachments/assets/e887d63e-79ef-43bb-ae2f-f01919e54f22" />
+
 
 ## Installation
 
