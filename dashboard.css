@@ -194,10 +194,6 @@ main#dashboard {
   align-items: center;
   margin-bottom: 10px;
   gap: 6px;
-  position: sticky;
-  top: 0;
-  background: inherit;
-  z-index: 1;
 }
 .category-header h2 {
 font-size: 18px;
