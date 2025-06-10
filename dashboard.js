@@ -346,20 +346,7 @@ function setCategoryColor(cat, color) {
   });
 }
 
-// Context menu for saving tabs
-chrome.runtime.onInstalled.addListener(() => {
-chrome.contextMenus.create({
-id: 'save-tabs',
-title: 'Save all open tabs to category',
-contexts: ['all']
-});
-});
-chrome.contextMenus.onClicked.addListener(info => {
-if (info.menuItemId === 'save-tabs') {
-const cat = prompt('Enter category name:');
-if (cat) saveTabs(cat);
-}
-});
+// Context menu setup moved to background.js
 
 loadOpenTabs();
 loadCategories();
