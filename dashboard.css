@@ -1,5 +1,5 @@
 :root {
-  --primary: #4A399D;
+  --primary: #4a399d;
   --bg: #f0f2f5;
   --card-bg: #fff;
   --text: #000;
@@ -16,7 +16,7 @@ body.dark {
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
   margin: 0;
   padding: 0;
   background: var(--bg);
@@ -29,7 +29,7 @@ header {
   padding: 10px 20px;
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #controls {
@@ -37,7 +37,6 @@ header {
   align-items: center;
   gap: 10px;
 }
-
 
 #dark-control {
   display: flex;
@@ -74,7 +73,7 @@ header {
 
 .slider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 16px;
   width: 16px;
   left: 2px;
@@ -112,7 +111,7 @@ input:checked + .slider:before {
   color: #fff;
 }
 header h1 {
-font-size: 24px;
+  font-size: 24px;
 }
 #add-control input {
   padding: 5px;
@@ -176,7 +175,7 @@ main#dashboard {
 .category-card {
   background: var(--card-bg);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -199,8 +198,8 @@ main#dashboard {
   gap: 6px;
 }
 .category-header h2 {
-font-size: 18px;
-margin: 0;
+  font-size: 18px;
+  margin: 0;
 }
 .category-header button {
   background: none;
@@ -221,12 +220,12 @@ margin: 0;
   margin-right: 6px;
 }
 .tab-list {
-list-style: none;
-margin: 0;
-padding: 0;
-flex-grow: 1;
-overflow-y: auto;
-min-height: 40px; /* ensure droppable area when empty */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 40px; /* ensure droppable area when empty */
 }
 .tab-list li {
   margin-bottom: 5px;
@@ -253,7 +252,7 @@ min-height: 40px; /* ensure droppable area when empty */
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -307,4 +306,3 @@ min-height: 40px; /* ensure droppable area when empty */
   color: #fff;
   cursor: pointer;
 }
-
