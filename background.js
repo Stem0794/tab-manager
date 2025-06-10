@@ -12,12 +12,16 @@ function getCategoryData(cats, cat) {
 }
 
 function saveTabs(cat) {
-  chrome.tabs.query({}, tabs => {
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
+  chrome.tabs.query({}, (tabs) => {
+    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       const catData = getCategoryData(cats, cat);
-      catData.tabs = tabs.map(t => ({ url: t.url, title: t.title, favIconUrl: t.favIconUrl || '' }));
+      catData.tabs = tabs.map((t) => ({
+        url: t.url,
+        title: t.title,
+        favIconUrl: t.favIconUrl || '',
+      }));
       if (!order.includes(cat)) order.push(cat);
       chrome.storage.sync.set({ categories: cats, categoryOrder: order });
     });
@@ -28,7 +32,7 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: 'save-tabs',
     title: 'Save all open tabs to category',
-    contexts: ['all']
+    contexts: ['all'],
   });
 });
 
@@ -37,13 +41,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
-        func: () => prompt('Enter category name:')
+        func: () => prompt('Enter category name:'),
       },
-      results => {
+      (results) => {
         if (chrome.runtime.lastError) return;
         const cat = results && results[0] ? results[0].result : null;
         if (cat) saveTabs(cat);
-      }
+      },
     );
   }
 });
