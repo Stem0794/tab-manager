@@ -202,7 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const a = document.createElement('a');
           a.href = tab.url;
           a.textContent = tab.title;
-          a.target = '_blank';
+          // Open links within the dashboard tab instead of a new tab
+          a.target = '_self';
           const rename = document.createElement('button');
           rename.textContent = '✎';
           rename.title = 'Rename tab';
