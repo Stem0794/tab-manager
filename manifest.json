@@ -3,14 +3,17 @@
 "name": "Tab Manager Dashboard",
 "description": "Group tabs under categories and open them quickly via a New Tab dashboard",
 "version": "1.0",
-  "permissions": ["tabs", "storage", "contextMenus"],
+  "permissions": ["tabs", "storage", "contextMenus", "scripting"],
 "chrome_url_overrides": {
 "newtab": "dashboard.html"
 },
 "icons": {
 "16": "icon.png"
 },
-"content_security_policy": {
-  "extension_pages": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'"
-}
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'"
+  }
 }
