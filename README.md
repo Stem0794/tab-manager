@@ -12,6 +12,10 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 - **Sync storage**: Categories are stored using Chrome's `storage.sync` so they can be shared between browsers signed into the same account.
 - **Emoji icons**: Uses the `emoji-picker-element` library for a macOS-style emoji chooser.
 
+## Preview
+
+<img alt="Dashboard Screenshot" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAKb+RoYAAAAASUVORK5CYII=" />
+
 ## Installation
 
 1. Clone or download this repository.
@@ -35,6 +39,12 @@ All saved data is kept in Chrome's synced storage, so categories follow you acro
 The core logic lives in `dashboard.js`, while `dashboard.html` defines the layout and `dashboard.css` contains styles. `manifest.json` configures the extension as a Chrome extension using Manifest V3.
 
 Feel free to modify these files and reload the extension using the **Reload** button on the extensions page.
+
+## Contributing
+
+Contributions are welcome! If you run into bugs or have ideas for improvements, please open an issue.
+To submit code, fork the repository and create a new branch for your changes.
+Once you've committed your work, push the branch and open a pull request describing your updates.
 
 ## License
 
