@@ -11,7 +11,8 @@
 "16": "icon.png"
 },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'"
