@@ -228,19 +228,23 @@ card.addEventListener('drop', e => {
 
 // Add category
 addCatBtn.onclick = () => {
-const cat = newCatInput.value.trim();
-if (!cat) return;
-chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
-const cats = data.categories;
-const order = data.categoryOrder;
-getCategoryData(cats, cat); // initialize with defaults
-if (!order.includes(cat)) order.push(cat);
-chrome.storage.sync.set({ categories: cats, categoryOrder: order }, () => {
-newCatInput.value = '';
-  loadOpenTabs();
-  loadCategories();
-});
-});
+  const cat = newCatInput.value.trim();
+  if (!cat) return;
+  chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
+    const cats = data.categories;
+    const order = data.categoryOrder;
+    if (cats[cat]) {
+      alert('Category already exists');
+      return;
+    }
+    getCategoryData(cats, cat); // initialize with defaults
+    if (!order.includes(cat)) order.push(cat);
+    chrome.storage.sync.set({ categories: cats, categoryOrder: order }, () => {
+      newCatInput.value = '';
+      loadOpenTabs();
+      loadCategories();
+    });
+  });
 };
 
 // Delete category
@@ -316,11 +320,17 @@ async function showEmojiPicker(current) {
 }
 
 function renameCategory(oldName) {
-  const newName = prompt('Category name', oldName);
+  const input = prompt('Category name', oldName);
+  if (input === null) return;
+  const newName = input.trim();
   if (!newName || newName === oldName) return;
   chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, data => {
     const cats = data.categories;
     const order = data.categoryOrder;
+    if (cats[newName]) {
+      alert('Category already exists');
+      return;
+    }
     const catData = getCategoryData(cats, oldName);
     cats[newName] = catData;
     delete cats[oldName];
