@@ -166,11 +166,12 @@ main#dashboard {
 #categories {
   flex: 1;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 15px;
   padding: 20px;
-  overflow-y: auto;
-  align-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  align-items: stretch;
 }
 .category-card {
   background: var(--card-bg);
@@ -179,6 +180,8 @@ main#dashboard {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
   resize: horizontal;
   overflow: auto;
   min-width: 200px;
