@@ -329,18 +329,22 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function showEmojiPicker(current) {
-    if (!customElements.get('emoji-picker')) {
-      await import('https://cdn.jsdelivr.net/npm/emoji-picker-element@^1');
-    }
     return new Promise((resolve) => {
       const overlay = document.createElement('div');
       overlay.className = 'emoji-overlay';
-      const picker = document.createElement('emoji-picker');
 
-      picker.addEventListener('emoji-click', (e) => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = current || '';
+      input.placeholder = '🙂';
+
+      const button = document.createElement('button');
+      button.textContent = 'OK';
+
+      button.onclick = () => {
         overlay.remove();
-        resolve(e.detail.unicode);
-      });
+        resolve(input.value || current);
+      };
 
       overlay.addEventListener('click', (evt) => {
         if (evt.target === overlay) {
@@ -349,9 +353,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      overlay.appendChild(picker);
+      const container = document.createElement('div');
+      container.className = 'emoji-picker';
+      container.appendChild(input);
+      container.appendChild(button);
+
+      overlay.appendChild(container);
       document.body.appendChild(overlay);
-      picker.focus();
+      input.focus();
     });
   }
 
