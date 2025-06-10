@@ -47,6 +47,7 @@ function loadOpenTabs() {
       const img = document.createElement('img');
       img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
       img.className = 'favicon';
+      img.alt = tab.title || tab.url;
       const span = document.createElement('span');
       span.textContent = tab.title || tab.url;
       li.append(img, span);
@@ -175,6 +176,7 @@ card.addEventListener('drop', e => {
       const img = document.createElement('img');
       img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
       img.className = 'favicon';
+      img.alt = tab.title || tab.url;
       const a = document.createElement('a');
       a.href = tab.url;
       a.textContent = tab.title;
