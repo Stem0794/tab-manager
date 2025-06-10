@@ -1,40 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Tab Manager Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="dashboard.css" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <header>
-        <h1>Tab Manager</h1>
-        <div id="controls">
-            <div id="dark-control">
-                <label class="switch">
-                    <input type="checkbox" id="darkToggle">
-                    <span class="slider"></span>
-                </label>
-                <span class="label-text">Dark Mode</span>
-            </div>
-            <div id="theme-control">
-                <label for="themeColor">Theme</label>
-                <input type="color" id="themeColor" title="Theme Color">
-            </div>
-            <div id="add-control">
-                <input type="text" id="newCategory" placeholder="New category" />
-                <button id="addCategory">Add</button>
-            </div>
+      <h1>Tab Manager</h1>
+      <div id="controls">
+        <div id="dark-control">
+          <label class="switch">
+            <input type="checkbox" id="darkToggle" />
+            <span class="slider"></span>
+          </label>
+          <span class="label-text">Dark Mode</span>
         </div>
+        <div id="theme-control">
+          <label for="themeColor">Theme</label>
+          <input type="color" id="themeColor" title="Theme Color" />
+        </div>
+        <div id="add-control">
+          <input type="text" id="newCategory" placeholder="New category" />
+          <button id="addCategory">Add</button>
+        </div>
+      </div>
     </header>
     <main id="dashboard">
-        <section id="open-tabs">
-            <h2>Open Tabs</h2>
-            <ul id="openTabs"></ul>
-        </section>
-        <section id="categories"></section>
+      <section id="open-tabs">
+        <h2>Open Tabs</h2>
+        <ul id="openTabs"></ul>
+      </section>
+      <section id="categories"></section>
     </main>
     <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"></script>
     <script type="module" src="dashboard.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1"
+    ></script>
+    <script src="dashboard.js"></script>
   </body>
 </html>
