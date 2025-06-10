@@ -1,3 +1,4 @@
+import { getCategoryData, saveTabs } from './utils.js';
 function getCategoryData(cats, cat) {
   if (!cats[cat]) {
     cats[cat] = { tabs: [], color: '', icon: 'folder' };

@@ -1,4 +1,5 @@
 // Manage categories and tabs on dashboard view
+import { getCategoryData } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const newCatInput = document.getElementById('newCategory');
