@@ -10,7 +10,7 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 - **Quick open**: Open all tabs in a category with a single click.
 - **Context menu**: Right‑click anywhere and choose "Save all open tabs to category" to archive your session.
 - **Sync storage**: Categories are stored using Chrome's `storage.sync` so they can be shared between browsers signed into the same account.
-- **Emoji icons**: Uses the `emoji-picker-element` library for a macOS-style emoji chooser.
+- **Emoji icons**: Pick category icons using a simple built-in prompt.
 
 ## Preview
 
