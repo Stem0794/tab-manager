@@ -9,6 +9,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkToggle = document.getElementById('darkToggle');
   const themeColorInput = document.getElementById('themeColor');
 
+  openTabsList.addEventListener('dragover', (e) => e.preventDefault());
+  openTabsList.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const from = e.dataTransfer.getData('text/tab-source');
+    if (from) {
+      const [srcCat, srcIdx] = from.split(':');
+      removeTabFromCategory(srcCat, Number(srcIdx));
+    }
+  });
+
+  document.addEventListener('dragover', (e) => {
+    if (!e.target.closest('.tab-list')) e.preventDefault();
+  });
+
+  document.addEventListener('drop', (e) => {
+    const from = e.dataTransfer.getData('text/tab-source');
+    if (from && !e.target.closest('.tab-list')) {
+      const [srcCat, srcIdx] = from.split(':');
+      removeTabFromCategory(srcCat, Number(srcIdx));
+    }
+  });
+
   chrome.storage.sync.get(
     { darkMode: false, themeColor: '#4A399D' },
     (data) => {
@@ -105,6 +127,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function removeTabFromCategory(cat, index) {
+    const idx = Number(index);
+    chrome.storage.sync.get({ categories: {} }, (data) => {
+      const catData = getCategoryData(data.categories, cat);
+      if (idx < 0 || idx >= catData.tabs.length) return;
+      catData.tabs.splice(idx, 1);
+      chrome.storage.sync.set({ categories: data.categories }, loadCategories);
+    });
+  }
+
   // Load and render categories
   function loadCategories() {
     chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
@@ -176,7 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ul.addEventListener('dragover', (e) => e.preventDefault());
         ul.addEventListener('drop', (e) => {
           e.preventDefault();
+          e.stopPropagation();
           const plain = e.dataTransfer.getData('text/plain');
+          const from = e.dataTransfer.getData('text/tab-source');
           const uri = e.dataTransfer.getData('text/uri-list');
           let tabData = null;
           if (plain) {
@@ -192,9 +226,19 @@ document.addEventListener('DOMContentLoaded', () => {
             tabData = { url, title: url, favIconUrl: '' };
           }
           if (tabData) addTabToCategory(cat, tabData);
+          if (from) {
+            const [srcCat, srcIdx] = from.split(':');
+            if (srcCat && srcCat !== cat)
+              removeTabFromCategory(srcCat, Number(srcIdx));
+          }
         });
         catData.tabs.forEach((tab, idx) => {
           const li = document.createElement('li');
+          li.draggable = true;
+          li.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', JSON.stringify(tab));
+            e.dataTransfer.setData('text/tab-source', `${cat}:${idx}`);
+          });
           const img = document.createElement('img');
           img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
           img.className = 'favicon';
