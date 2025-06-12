@@ -12,8 +12,9 @@ export function getCategoryData(cats, cat) {
   return cats[cat];
 }
 
-export function saveTabs(cat, callback) {
+export function saveTabs(cat, closeAfter = false, callback) {
   chrome.tabs.query({}, (tabs) => {
+    const tabIds = tabs.map((t) => t.id);
     chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
@@ -26,7 +27,10 @@ export function saveTabs(cat, callback) {
       if (!order.includes(cat)) order.push(cat);
       chrome.storage.sync.set(
         { categories: cats, categoryOrder: order },
-        callback,
+        () => {
+          if (closeAfter) chrome.tabs.remove(tabIds);
+          if (callback) callback();
+        },
       );
     });
   });

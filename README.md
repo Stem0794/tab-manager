@@ -9,6 +9,7 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 - **Manual entry**: Add URLs to a category using the text field under each category.
 - **Quick open**: Open all tabs in a category with a single click.
 - **Context menu**: Right‑click anywhere and choose "Save all open tabs to category" to archive your session.
+- **Optional auto-close**: After saving via the context menu you can choose to automatically close those tabs.
 - **Sync storage**: Categories are stored using Chrome's `storage.sync` so they can be shared between browsers signed into the same account.
 - **Emoji icons**: Pick category icons using a simple built-in prompt.
 - **Dark mode & theme color**: Toggle a dark theme or choose a custom accent color from the header controls.
@@ -30,7 +31,7 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 
 1. The **Open Tabs** list shows tabs from your current window. Drag any of them into an existing category to save it.
 2. Create a new category using the text field at the top of the dashboard.
-3. Use the context menu item "Save all open tabs to category" to snapshot every tab in the window.
+3. Use the context menu item "Save all open tabs to category" to snapshot every tab in the window. After entering a category name you'll be asked if the tabs should be closed.
 4. Click **Open All** in a category to reopen every saved tab.
 5. To remove a category, click the **✕** button next to its name.
 

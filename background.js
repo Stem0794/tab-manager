@@ -13,12 +13,17 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.scripting.executeScript(
       {
         target: { tabId: tab.id },
-        func: () => prompt('Enter category name:'),
+        func: () => {
+          const cat = prompt('Enter category name:');
+          if (!cat) return null;
+          const closeAfter = confirm('Close tabs after saving?');
+          return { cat, closeAfter };
+        },
       },
       (results) => {
         if (chrome.runtime.lastError) return;
-        const cat = results && results[0] ? results[0].result : null;
-        if (cat) saveTabs(cat);
+        const res = results && results[0] ? results[0].result : null;
+        if (res && res.cat) saveTabs(res.cat, res.closeAfter);
       },
     );
   }
