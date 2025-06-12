@@ -451,6 +451,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Context menu setup moved to background.js
 
+  // Keep the open tabs list in sync as tabs are changed
+  chrome.tabs.onCreated.addListener(loadOpenTabs);
+  chrome.tabs.onRemoved.addListener(loadOpenTabs);
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (
+      changeInfo.status === 'complete' ||
+      changeInfo.title ||
+      changeInfo.url
+    ) {
+      loadOpenTabs();
+    }
+  });
+
   loadOpenTabs();
   loadCategories();
 });
