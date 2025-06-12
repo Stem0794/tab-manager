@@ -56,12 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getCategoryData(cats, cat) {
     if (!cats[cat]) {
-      cats[cat] = { tabs: [], color: '', icon: 'folder' };
+      cats[cat] = { tabs: [], icon: 'folder' };
     } else if (Array.isArray(cats[cat])) {
-      cats[cat] = { tabs: cats[cat], color: '', icon: 'folder' };
+      cats[cat] = { tabs: cats[cat], icon: 'folder' };
     } else {
       cats[cat].tabs = cats[cat].tabs || [];
-      cats[cat].color = cats[cat].color || '';
       cats[cat].icon = cats[cat].icon || 'folder';
     }
     return cats[cat];
@@ -156,10 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'category-card';
         card.dataset.cat = cat;
         const catData = getCategoryData(cats, cat);
-        card.style.background =
-          !catData.color || catData.color === '#fff'
-            ? 'var(--card-bg)'
-            : catData.color;
+        card.style.background = 'var(--card-bg)';
         card.style.width = existingWidths[cat] || '';
         card.draggable = true;
         card.addEventListener('dragstart', (e) => {
@@ -190,16 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
         delBtn.onclick = () => {
           deleteCategory(cat);
         };
-        const colorInput = document.createElement('input');
-        colorInput.type = 'color';
-        colorInput.className = 'color-input';
-        colorInput.value = catData.color || '#ffffff';
-        colorInput.title = 'Category color';
-        colorInput.oninput = () => setCategoryColor(cat, colorInput.value);
-
         icon.onclick = () => updateCategoryIcon(cat);
 
-        header.append(icon, title, editBtn, delBtn, colorInput);
+        header.append(icon, title, editBtn, delBtn);
         card.append(header);
 
         // Tab list
@@ -437,14 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.sync.get({ categories: {} }, async (data) => {
       const catData = getCategoryData(data.categories, cat);
       catData.icon = await showEmojiPicker(catData.icon);
-      chrome.storage.sync.set({ categories: data.categories }, loadCategories);
-    });
-  }
-
-  function setCategoryColor(cat, color) {
-    chrome.storage.sync.get({ categories: {} }, (data) => {
-      const catData = getCategoryData(data.categories, cat);
-      catData.color = color;
       chrome.storage.sync.set({ categories: data.categories }, loadCategories);
     });
   }

@@ -2,12 +2,11 @@
 
 export function getCategoryData(cats, cat) {
   if (!cats[cat]) {
-    cats[cat] = { tabs: [], color: '', icon: 'folder' };
+    cats[cat] = { tabs: [], icon: 'folder' };
   } else if (Array.isArray(cats[cat])) {
-    cats[cat] = { tabs: cats[cat], color: '', icon: 'folder' };
+    cats[cat] = { tabs: cats[cat], icon: 'folder' };
   } else {
     cats[cat].tabs = cats[cat].tabs || [];
-    cats[cat].color = cats[cat].color || '';
     cats[cat].icon = cats[cat].icon || 'folder';
   }
   return cats[cat];

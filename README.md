@@ -11,6 +11,7 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 - **Context menu**: Right‑click anywhere and choose "Save all open tabs to category" to archive your session.
 - **Sync storage**: Categories are stored using Chrome's `storage.sync` so they can be shared between browsers signed into the same account.
 - **Emoji icons**: Pick category icons using a simple built-in prompt.
+- **Dark mode & theme color**: Toggle a dark theme or choose a custom accent color from the header controls.
 
 ## Preview
 
@@ -40,6 +41,8 @@ All saved data is kept in Chrome's synced storage, so categories follow you acro
 The core logic lives in `dashboard.js`, while `dashboard.html` defines the layout and `dashboard.css` contains styles. `manifest.json` configures the extension as a Chrome extension using Manifest V3.
 
 Feel free to modify these files and reload the extension using the **Reload** button on the extensions page.
+
+Run `npm run format` before committing to automatically format source files with Prettier.
 
 ## Contributing
 
