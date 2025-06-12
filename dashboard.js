@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const openTabsList = document.getElementById('openTabs');
   const darkToggle = document.getElementById('darkToggle');
   const themeColorInput = document.getElementById('themeColor');
+  const exportBtn = document.getElementById('exportData');
+  const importBtn = document.getElementById('importData');
+  const importFileInput = document.getElementById('importFile');
 
   openTabsList.addEventListener('dragover', (e) => e.preventDefault());
   openTabsList.addEventListener('drop', (e) => {
@@ -52,6 +55,78 @@ document.addEventListener('DOMContentLoaded', () => {
       themeColorInput.value,
     );
     chrome.storage.sync.set({ themeColor: themeColorInput.value });
+  });
+
+  function exportData() {
+    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+      const json = JSON.stringify(
+        { categories: data.categories, categoryOrder: data.categoryOrder },
+        null,
+        2,
+      );
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'tab-manager-data.json';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    });
+  }
+
+  exportBtn.addEventListener('click', exportData);
+
+  importBtn.addEventListener('click', () => {
+    importFileInput.click();
+  });
+
+  function importData(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const obj = JSON.parse(reader.result);
+        if (
+          !obj ||
+          typeof obj !== 'object' ||
+          typeof obj.categories !== 'object' ||
+          !Array.isArray(obj.categoryOrder)
+        ) {
+          throw new Error('Invalid data');
+        }
+        const merge = confirm(
+          'Merge imported categories with existing ones?\nClick Cancel to replace.',
+        );
+        chrome.storage.sync.get(
+          { categories: {}, categoryOrder: [] },
+          (data) => {
+            const cats = merge
+              ? { ...data.categories, ...obj.categories }
+              : obj.categories;
+            const order = merge
+              ? Array.from(
+                  new Set([...data.categoryOrder, ...obj.categoryOrder]),
+                )
+              : obj.categoryOrder;
+            chrome.storage.sync.set(
+              { categories: cats, categoryOrder: order },
+              () => {
+                importFileInput.value = '';
+                loadCategories();
+              },
+            );
+          },
+        );
+      } catch (err) {
+        alert('Failed to import data: ' + err.message);
+        importFileInput.value = '';
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  importFileInput.addEventListener('change', () => {
+    const file = importFileInput.files[0];
+    if (file) importData(file);
   });
 
   function getCategoryData(cats, cat) {

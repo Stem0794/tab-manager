@@ -127,6 +127,15 @@ header h1 {
   color: var(--primary);
   cursor: pointer;
 }
+#file-control button {
+  padding: 5px 10px;
+  margin-left: 5px;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--primary);
+  cursor: pointer;
+}
 main#dashboard {
   display: flex;
   height: calc(100vh - 60px);
