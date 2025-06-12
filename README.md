@@ -36,6 +36,15 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 
 All saved data is kept in Chrome's synced storage, so categories follow you across devices as long as you are signed into Chrome.
 
+## Keyboard Shortcuts
+
+Two commands are available and can be configured under `chrome://extensions/shortcuts`:
+
+- **Save all tabs** (`Alt+Shift+S` by default)
+- **Open dashboard** (`Alt+Shift+D` by default)
+
+You may change the shortcuts on the extensions page to whatever works best for you.
+
 ## Development
 
 The core logic lives in `dashboard.js`, while `dashboard.html` defines the layout and `dashboard.css` contains styles. `manifest.json` configures the extension as a Chrome extension using Manifest V3.
