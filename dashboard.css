@@ -208,14 +208,6 @@ main#dashboard {
   font-size: 18px;
   color: var(--text);
 }
-.color-input {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
 .category-icon {
   margin-right: 6px;
 }
