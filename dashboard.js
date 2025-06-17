@@ -191,12 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function renameTab(cat, index, title) {
+  function renameTab(cat, index, title, url) {
     const idx = Number(index);
     chrome.storage.sync.get({ categories: {} }, (data) => {
       const catData = getCategoryData(data.categories, cat);
       if (idx < 0 || idx >= catData.tabs.length) return;
       catData.tabs[idx].title = title;
+      if (url) catData.tabs[idx].url = url;
       chrome.storage.sync.set({ categories: data.categories }, loadCategories);
     });
   }
@@ -316,12 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
           rename.textContent = '✎';
           rename.title = 'Rename tab';
           rename.className = 'rename-btn';
-          rename.onclick = (e) => {
+          rename.onclick = async (e) => {
             e.stopPropagation();
-            const nt = prompt('New title', tab.title);
-            if (nt !== null) {
-              const trimmed = nt.trim();
-              if (trimmed) renameTab(cat, idx, trimmed);
+            const res = await showTabEditDialog(tab.title, tab.url);
+            if (res && res.title.trim() && res.url.trim()) {
+              renameTab(cat, idx, res.title.trim(), res.url.trim());
             }
           };
           li.append(img, a, rename);
@@ -470,6 +470,49 @@ document.addEventListener('DOMContentLoaded', () => {
       overlay.appendChild(container);
       document.body.appendChild(overlay);
       input.focus();
+    });
+  }
+
+  async function showTabEditDialog(title, url) {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'edit-overlay';
+
+      const container = document.createElement('div');
+      container.className = 'edit-dialog';
+
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.placeholder = 'Title';
+      titleInput.value = title || '';
+
+      const urlInput = document.createElement('input');
+      urlInput.type = 'text';
+      urlInput.placeholder = 'URL';
+      urlInput.value = url || '';
+
+      const button = document.createElement('button');
+      button.textContent = 'OK';
+
+      button.onclick = () => {
+        overlay.remove();
+        resolve({ title: titleInput.value, url: urlInput.value });
+      };
+
+      overlay.addEventListener('click', (evt) => {
+        if (evt.target === overlay) {
+          overlay.remove();
+          resolve(null);
+        }
+      });
+
+      container.appendChild(titleInput);
+      container.appendChild(urlInput);
+      container.appendChild(button);
+
+      overlay.appendChild(container);
+      document.body.appendChild(overlay);
+      titleInput.focus();
     });
   }
 
