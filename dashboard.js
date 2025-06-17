@@ -144,8 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load currently open tabs
   function loadOpenTabs() {
     chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      const dashboardUrl = chrome.runtime.getURL('dashboard.html');
       openTabsList.innerHTML = '';
       tabs.forEach((tab) => {
+        if (tab.url && tab.url.startsWith(dashboardUrl)) return;
         const li = document.createElement('li');
         const img = document.createElement('img');
         img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
