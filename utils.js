@@ -1,5 +1,28 @@
 // Shared utility functions for tab management
 
+export function storageGet(defaults, callback) {
+  chrome.storage.sync.get(defaults, (data) => {
+    if (chrome.runtime.lastError) {
+      chrome.storage.local.get(defaults, callback);
+    } else {
+      const missing = Object.keys(defaults).some((k) => data[k] === undefined);
+      if (missing) {
+        chrome.storage.local.get(defaults, callback);
+      } else {
+        callback(data);
+      }
+    }
+  });
+}
+
+export function storageSet(data, callback) {
+  chrome.storage.sync.set(data, () => {
+    if (chrome.runtime.lastError) {
+      chrome.storage.local.set(data, callback);
+    } else if (callback) callback();
+  });
+}
+
 export function getCategoryData(cats, cat) {
   if (!cats[cat]) {
     cats[cat] = { tabs: [], icon: 'folder' };
@@ -15,7 +38,7 @@ export function getCategoryData(cats, cat) {
 export function saveTabs(cat, closeAfter = false, callback) {
   chrome.tabs.query({}, (tabs) => {
     const tabIds = tabs.map((t) => t.id);
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       const catData = getCategoryData(cats, cat);
@@ -25,13 +48,10 @@ export function saveTabs(cat, closeAfter = false, callback) {
         favIconUrl: t.favIconUrl || '',
       }));
       if (!order.includes(cat)) order.push(cat);
-      chrome.storage.sync.set(
-        { categories: cats, categoryOrder: order },
-        () => {
-          if (closeAfter) chrome.tabs.remove(tabIds);
-          if (callback) callback();
-        },
-      );
+      storageSet({ categories: cats, categoryOrder: order }, () => {
+        if (closeAfter) chrome.tabs.remove(tabIds);
+        if (callback) callback();
+      });
     });
   });
 }
