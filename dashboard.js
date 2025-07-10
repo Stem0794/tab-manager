@@ -161,18 +161,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  async function fetchFavicon(url) {
+    try {
+      const res = await fetch(
+        `https://www.google.com/s2/favicons?sz=64&domain_url=${encodeURIComponent(
+          url,
+        )}`,
+      );
+      if (!res.ok) return '';
+      const blob = await res.blob();
+      return await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve('');
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      return '';
+    }
+  }
+
   // Add a tab record to a category
   function addTabToCategory(cat, tab) {
-    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, async (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       const catData = getCategoryData(cats, cat);
       if (!order.includes(cat)) order.push(cat);
       if (!catData.tabs.some((t) => t.url === tab.url)) {
+        const favIconUrl = tab.favIconUrl || (await fetchFavicon(tab.url));
         catData.tabs.push({
           url: tab.url,
           title: tab.title || tab.url,
-          favIconUrl: tab.favIconUrl || '',
+          favIconUrl,
         });
       }
       storageSet({ categories: cats, categoryOrder: order }, loadCategories);
@@ -259,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ul = document.createElement('ul');
         ul.className = 'tab-list';
         ul.addEventListener('dragover', (e) => e.preventDefault());
-        ul.addEventListener('drop', (e) => {
+        ul.addEventListener('drop', async (e) => {
           e.preventDefault();
           e.stopPropagation();
           const plain = e.dataTransfer.getData('text/plain');
@@ -276,7 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           const url = tabData ? null : uri || plain;
           if (!tabData && url) {
-            tabData = { url, title: url, favIconUrl: '' };
+            const favIconUrl = await fetchFavicon(url);
+            tabData = { url, title: url, favIconUrl };
           }
           if (tabData) addTabToCategory(cat, tabData);
           if (from) {
@@ -324,10 +346,11 @@ document.addEventListener('DOMContentLoaded', () => {
         inp.placeholder = 'Add URL';
         const btn = document.createElement('button');
         btn.textContent = 'Add';
-        btn.onclick = () => {
+        btn.onclick = async () => {
           const url = inp.value.trim();
           if (url) {
-            addTabToCategory(cat, { url, title: url, favIconUrl: '' });
+            const favIconUrl = await fetchFavicon(url);
+            addTabToCategory(cat, { url, title: url, favIconUrl });
             inp.value = '';
           }
         };
