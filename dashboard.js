@@ -1,5 +1,5 @@
 // Manage categories and tabs on dashboard view
-import { getCategoryData } from './utils.js';
+import { getCategoryData, storageGet, storageSet } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const newCatInput = document.getElementById('newCategory');
@@ -34,19 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  chrome.storage.sync.get(
-    { darkMode: false, themeColor: '#4A399D' },
-    (data) => {
-      if (data.darkMode) document.body.classList.add('dark');
-      darkToggle.checked = data.darkMode;
-      document.documentElement.style.setProperty('--primary', data.themeColor);
-      themeColorInput.value = data.themeColor;
-    },
-  );
+  storageGet({ darkMode: false, themeColor: '#4A399D' }, (data) => {
+    if (data.darkMode) document.body.classList.add('dark');
+    darkToggle.checked = data.darkMode;
+    document.documentElement.style.setProperty('--primary', data.themeColor);
+    themeColorInput.value = data.themeColor;
+  });
 
   darkToggle.addEventListener('change', () => {
     document.body.classList.toggle('dark', darkToggle.checked);
-    chrome.storage.sync.set({ darkMode: darkToggle.checked });
+    storageSet({ darkMode: darkToggle.checked });
   });
 
   themeColorInput.addEventListener('input', () => {
@@ -54,11 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
       '--primary',
       themeColorInput.value,
     );
-    chrome.storage.sync.set({ themeColor: themeColorInput.value });
+    storageSet({ themeColor: themeColorInput.value });
   });
 
   function exportData() {
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const json = JSON.stringify(
         { categories: data.categories, categoryOrder: data.categoryOrder },
         null,
@@ -96,26 +93,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const merge = confirm(
           'Merge imported categories with existing ones?\nClick Cancel to replace.',
         );
-        chrome.storage.sync.get(
-          { categories: {}, categoryOrder: [] },
-          (data) => {
-            const cats = merge
-              ? { ...data.categories, ...obj.categories }
-              : obj.categories;
-            const order = merge
-              ? Array.from(
-                  new Set([...data.categoryOrder, ...obj.categoryOrder]),
-                )
-              : obj.categoryOrder;
-            chrome.storage.sync.set(
-              { categories: cats, categoryOrder: order },
-              () => {
-                importFileInput.value = '';
-                loadCategories();
-              },
-            );
-          },
-        );
+        storageGet({ categories: {}, categoryOrder: [] }, (data) => {
+          const cats = merge
+            ? { ...data.categories, ...obj.categories }
+            : obj.categories;
+          const order = merge
+            ? Array.from(new Set([...data.categoryOrder, ...obj.categoryOrder]))
+            : obj.categoryOrder;
+          storageSet({ categories: cats, categoryOrder: order }, () => {
+            importFileInput.value = '';
+            loadCategories();
+          });
+        });
       } catch (err) {
         alert('Failed to import data: ' + err.message);
         importFileInput.value = '';
@@ -174,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add a tab record to a category
   function addTabToCategory(cat, tab) {
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       const catData = getCategoryData(cats, cat);
@@ -186,37 +175,34 @@ document.addEventListener('DOMContentLoaded', () => {
           favIconUrl: tab.favIconUrl || '',
         });
       }
-      chrome.storage.sync.set(
-        { categories: cats, categoryOrder: order },
-        loadCategories,
-      );
+      storageSet({ categories: cats, categoryOrder: order }, loadCategories);
     });
   }
 
   function renameTab(cat, index, title, url) {
     const idx = Number(index);
-    chrome.storage.sync.get({ categories: {} }, (data) => {
+    storageGet({ categories: {} }, (data) => {
       const catData = getCategoryData(data.categories, cat);
       if (idx < 0 || idx >= catData.tabs.length) return;
       catData.tabs[idx].title = title;
       if (url) catData.tabs[idx].url = url;
-      chrome.storage.sync.set({ categories: data.categories }, loadCategories);
+      storageSet({ categories: data.categories }, loadCategories);
     });
   }
 
   function removeTabFromCategory(cat, index) {
     const idx = Number(index);
-    chrome.storage.sync.get({ categories: {} }, (data) => {
+    storageGet({ categories: {} }, (data) => {
       const catData = getCategoryData(data.categories, cat);
       if (idx < 0 || idx >= catData.tabs.length) return;
       catData.tabs.splice(idx, 1);
-      chrome.storage.sync.set({ categories: data.categories }, loadCategories);
+      storageSet({ categories: data.categories }, loadCategories);
     });
   }
 
   // Load and render categories
   function loadCategories() {
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       const existingWidths = {};
@@ -364,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
   addCatBtn.onclick = () => {
     const cat = newCatInput.value.trim();
     if (!cat) return;
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       if (cats[cat]) {
@@ -373,36 +359,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       getCategoryData(cats, cat); // initialize with defaults
       if (!order.includes(cat)) order.push(cat);
-      chrome.storage.sync.set(
-        { categories: cats, categoryOrder: order },
-        () => {
-          newCatInput.value = '';
-          loadOpenTabs();
-          loadCategories();
-        },
-      );
+      storageSet({ categories: cats, categoryOrder: order }, () => {
+        newCatInput.value = '';
+        loadOpenTabs();
+        loadCategories();
+      });
     });
   };
 
   // Delete category
   function deleteCategory(cat) {
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       delete cats[cat];
       const idx = order.indexOf(cat);
       if (idx > -1) order.splice(idx, 1);
-      chrome.storage.sync.set(
-        { categories: cats, categoryOrder: order },
-        loadCategories,
-      );
+      storageSet({ categories: cats, categoryOrder: order }, loadCategories);
     });
   }
 
   // Save current tabs
   function saveTabs(cat) {
     chrome.tabs.query({}, (tabs) => {
-      chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+      storageGet({ categories: {}, categoryOrder: [] }, (data) => {
         const cats = data.categories;
         const order = data.categoryOrder;
         const catData = getCategoryData(cats, cat);
@@ -412,30 +392,27 @@ document.addEventListener('DOMContentLoaded', () => {
           favIconUrl: t.favIconUrl || '',
         }));
         if (!order.includes(cat)) order.push(cat);
-        chrome.storage.sync.set(
-          { categories: cats, categoryOrder: order },
-          loadCategories,
-        );
+        storageSet({ categories: cats, categoryOrder: order }, loadCategories);
       });
     });
   }
 
   // Open all tabs in category
   function openCategory(cat) {
-    chrome.storage.sync.get({ categories: {} }, (data) => {
+    storageGet({ categories: {} }, (data) => {
       const catData = getCategoryData(data.categories, cat);
       catData.tabs.forEach((tab) => chrome.tabs.create({ url: tab.url }));
     });
   }
 
   function reorderCategories(fromCat, toCat) {
-    chrome.storage.sync.get({ categoryOrder: [] }, (data) => {
+    storageGet({ categoryOrder: [] }, (data) => {
       const order = data.categoryOrder;
       const fromIdx = order.indexOf(fromCat);
       const toIdx = order.indexOf(toCat);
       if (fromIdx === -1 || toIdx === -1) return;
       order.splice(toIdx, 0, order.splice(fromIdx, 1)[0]);
-      chrome.storage.sync.set({ categoryOrder: order }, loadCategories);
+      storageSet({ categoryOrder: order }, loadCategories);
     });
   }
 
@@ -523,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (input === null) return;
     const newName = input.trim();
     if (!newName || newName === oldName) return;
-    chrome.storage.sync.get({ categories: {}, categoryOrder: [] }, (data) => {
+    storageGet({ categories: {}, categoryOrder: [] }, (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
       if (cats[newName]) {
@@ -535,18 +512,15 @@ document.addEventListener('DOMContentLoaded', () => {
       delete cats[oldName];
       const idx = order.indexOf(oldName);
       if (idx > -1) order[idx] = newName;
-      chrome.storage.sync.set(
-        { categories: cats, categoryOrder: order },
-        loadCategories,
-      );
+      storageSet({ categories: cats, categoryOrder: order }, loadCategories);
     });
   }
 
   function updateCategoryIcon(cat) {
-    chrome.storage.sync.get({ categories: {} }, async (data) => {
+    storageGet({ categories: {} }, async (data) => {
       const catData = getCategoryData(data.categories, cat);
       catData.icon = await showEmojiPicker(catData.icon);
-      chrome.storage.sync.set({ categories: data.categories }, loadCategories);
+      storageSet({ categories: data.categories }, loadCategories);
     });
   }
 
