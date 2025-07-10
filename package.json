@@ -4,13 +4,13 @@
   "description": "Tab Manager Dashboard is a minimal Chrome extension that lets you organize your tabs into named categories and reopen them at any time via a custom New Tab page.",
   "main": "background.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test",
     "format": "prettier -w \"**/*.{js,html,css}\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "prettier": "^3.5.3"
   }
