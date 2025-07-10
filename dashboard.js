@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const importBtn = document.getElementById('importData');
   const importFileInput = document.getElementById('importFile');
 
+  let isDragging = false;
+  let pendingOpenTabsUpdate = false;
+
   openTabsList.addEventListener('dragover', (e) => e.preventDefault());
   openTabsList.addEventListener('drop', (e) => {
     e.preventDefault();
@@ -148,6 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load currently open tabs
   function loadOpenTabs() {
+    if (isDragging) {
+      pendingOpenTabsUpdate = true;
+      return;
+    }
     chrome.tabs.query({ currentWindow: true }, (tabs) => {
       const dashboardUrl = chrome.runtime.getURL('dashboard.html');
       openTabsList.innerHTML = '';
@@ -164,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         li.draggable = true;
         li.addEventListener('dragstart', (e) => {
           console.debug('[open tab dragstart]', tab);
+          isDragging = true;
           e.dataTransfer.setData(
             'text/plain',
             JSON.stringify({
@@ -172,6 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
               favIconUrl: tab.favIconUrl,
             }),
           );
+        });
+        li.addEventListener('dragend', () => {
+          isDragging = false;
+          if (pendingOpenTabsUpdate) {
+            pendingOpenTabsUpdate = false;
+            loadOpenTabs();
+          }
         });
         openTabsList.appendChild(li);
       });
@@ -263,7 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.width = existingWidths[cat] || '';
         card.draggable = true;
         card.addEventListener('dragstart', (e) => {
+          isDragging = true;
           e.dataTransfer.setData('text/plain', cat);
+        });
+        card.addEventListener('dragend', () => {
+          isDragging = false;
+          if (pendingOpenTabsUpdate) {
+            pendingOpenTabsUpdate = false;
+            loadOpenTabs();
+          }
         });
         card.addEventListener('dragover', (e) => e.preventDefault());
         card.addEventListener('drop', (e) => {
@@ -341,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const li = document.createElement('li');
           li.draggable = true;
           li.addEventListener('dragstart', (e) => {
+            isDragging = true;
             console.debug('[category tab dragstart]', {
               category: cat,
               idx,
@@ -351,6 +375,13 @@ document.addEventListener('DOMContentLoaded', () => {
               'text/tab-source',
               JSON.stringify({ cat, idx }),
             );
+          });
+          li.addEventListener('dragend', () => {
+            isDragging = false;
+            if (pendingOpenTabsUpdate) {
+              pendingOpenTabsUpdate = false;
+              loadOpenTabs();
+            }
           });
           const img = document.createElement('img');
           img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
