@@ -18,7 +18,9 @@ export function storageGet(defaults, callback) {
 export function storageSet(data, callback) {
   chrome.storage.sync.set(data, () => {
     if (chrome.runtime.lastError) {
-      chrome.storage.local.set(data, callback);
+      chrome.storage.sync.remove(Object.keys(data), () => {
+        chrome.storage.local.set(data, callback);
+      });
     } else if (callback) callback();
   });
 }
