@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
   openTabsList.addEventListener('dragover', (e) => e.preventDefault());
   openTabsList.addEventListener('drop', (e) => {
     e.preventDefault();
+    console.debug('[openTabsList drop]', {
+      from: e.dataTransfer.getData('text/tab-source'),
+    });
     const from = e.dataTransfer.getData('text/tab-source');
     if (from) {
       const [srcCat, srcIdx] = from.split(':');
@@ -27,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('drop', (e) => {
+    console.debug('[document drop]', {
+      target: e.target && e.target.className,
+      from: e.dataTransfer.getData('text/tab-source'),
+    });
     const from = e.dataTransfer.getData('text/tab-source');
     if (from && !e.target.closest('.tab-list')) {
       const [srcCat, srcIdx] = from.split(':');
@@ -147,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         li.append(img, span);
         li.draggable = true;
         li.addEventListener('dragstart', (e) => {
+          console.debug('[open tab dragstart]', tab);
           e.dataTransfer.setData(
             'text/plain',
             JSON.stringify({
@@ -183,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add a tab record to a category
   function addTabToCategory(cat, tab) {
+    console.debug('[addTabToCategory]', cat, tab);
     storageGet({ categories: {}, categoryOrder: [] }, async (data) => {
       const cats = data.categories;
       const order = data.categoryOrder;
@@ -212,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function removeTabFromCategory(cat, index) {
+    console.debug('[removeTabFromCategory]', cat, index);
     const idx = Number(index);
     storageGet({ categories: {} }, (data) => {
       const catData = getCategoryData(data.categories, cat);
@@ -283,6 +293,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ul.addEventListener('drop', async (e) => {
           e.preventDefault();
           e.stopPropagation();
+          console.debug('[category drop]', {
+            category: cat,
+            plain: e.dataTransfer.getData('text/plain'),
+            from: e.dataTransfer.getData('text/tab-source'),
+            uri: e.dataTransfer.getData('text/uri-list'),
+          });
           const plain = e.dataTransfer.getData('text/plain');
           const from = e.dataTransfer.getData('text/tab-source');
           const uri = e.dataTransfer.getData('text/uri-list');
@@ -300,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const favIconUrl = await fetchFavicon(url);
             tabData = { url, title: url, favIconUrl };
           }
+          console.debug('[category drop parsed]', { category: cat, tabData });
           if (tabData) addTabToCategory(cat, tabData);
           if (from) {
             const [srcCat, srcIdx] = from.split(':');
@@ -311,6 +328,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const li = document.createElement('li');
           li.draggable = true;
           li.addEventListener('dragstart', (e) => {
+            console.debug('[category tab dragstart]', {
+              category: cat,
+              idx,
+              tab,
+            });
             e.dataTransfer.setData('text/plain', JSON.stringify(tab));
             e.dataTransfer.setData('text/tab-source', `${cat}:${idx}`);
           });
