@@ -15,13 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
   openTabsList.addEventListener('dragover', (e) => e.preventDefault());
   openTabsList.addEventListener('drop', (e) => {
     e.preventDefault();
-    console.debug('[openTabsList drop]', {
-      from: e.dataTransfer.getData('text/tab-source'),
-    });
-    const from = e.dataTransfer.getData('text/tab-source');
-    if (from) {
-      const [srcCat, srcIdx] = from.split(':');
-      removeTabFromCategory(srcCat, Number(srcIdx));
+    e.stopPropagation();
+    const raw = e.dataTransfer.getData('text/tab-source');
+    console.debug('[openTabsList drop]', { raw });
+    if (raw) {
+      let from;
+      try {
+        from = JSON.parse(raw);
+      } catch {}
+      if (from && from.cat != null && from.idx != null) {
+        removeTabFromCategory(from.cat, Number(from.idx));
+      }
     }
   });
 
@@ -30,14 +34,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('drop', (e) => {
+    const raw = e.dataTransfer.getData('text/tab-source');
     console.debug('[document drop]', {
       target: e.target && e.target.className,
-      from: e.dataTransfer.getData('text/tab-source'),
+      raw,
     });
-    const from = e.dataTransfer.getData('text/tab-source');
-    if (from && !e.target.closest('.tab-list')) {
-      const [srcCat, srcIdx] = from.split(':');
-      removeTabFromCategory(srcCat, Number(srcIdx));
+    if (raw && !e.target.closest('.tab-list')) {
+      let from;
+      try {
+        from = JSON.parse(raw);
+      } catch {}
+      if (from && from.cat != null && from.idx != null) {
+        removeTabFromCategory(from.cat, Number(from.idx));
+      }
     }
   });
 
@@ -293,15 +302,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ul.addEventListener('drop', async (e) => {
           e.preventDefault();
           e.stopPropagation();
+          const plain = e.dataTransfer.getData('text/plain');
+          const raw = e.dataTransfer.getData('text/tab-source');
+          const uri = e.dataTransfer.getData('text/uri-list');
           console.debug('[category drop]', {
             category: cat,
-            plain: e.dataTransfer.getData('text/plain'),
-            from: e.dataTransfer.getData('text/tab-source'),
-            uri: e.dataTransfer.getData('text/uri-list'),
+            plain,
+            raw,
+            uri,
           });
-          const plain = e.dataTransfer.getData('text/plain');
-          const from = e.dataTransfer.getData('text/tab-source');
-          const uri = e.dataTransfer.getData('text/uri-list');
           let tabData = null;
           if (plain) {
             try {
@@ -318,10 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           console.debug('[category drop parsed]', { category: cat, tabData });
           if (tabData) addTabToCategory(cat, tabData);
-          if (from) {
-            const [srcCat, srcIdx] = from.split(':');
-            if (srcCat && srcCat !== cat)
-              removeTabFromCategory(srcCat, Number(srcIdx));
+          if (raw) {
+            let from;
+            try {
+              from = JSON.parse(raw);
+            } catch {}
+            if (from && from.cat && from.idx != null && from.cat !== cat) {
+              removeTabFromCategory(from.cat, Number(from.idx));
+            }
           }
         });
         catData.tabs.forEach((tab, idx) => {
@@ -334,7 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
               tab,
             });
             e.dataTransfer.setData('text/plain', JSON.stringify(tab));
-            e.dataTransfer.setData('text/tab-source', `${cat}:${idx}`);
+            e.dataTransfer.setData(
+              'text/tab-source',
+              JSON.stringify({ cat, idx }),
+            );
           });
           const img = document.createElement('img');
           img.src = tab.favIconUrl || `chrome://favicon/${tab.url}`;
