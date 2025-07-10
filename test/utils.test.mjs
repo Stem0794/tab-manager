@@ -134,9 +134,14 @@ test('storageSet falls back to local on error', async () => {
   const chrome = mockChrome();
   let syncCalled = false;
   let localCalled = false;
+  let removeKeys = null;
   chrome.storage.sync.set = (data, cb) => {
     syncCalled = true;
     chrome.runtime.lastError = { message: 'fail' };
+    cb();
+  };
+  chrome.storage.sync.remove = (keys, cb) => {
+    removeKeys = keys;
     cb();
   };
   chrome.storage.local.set = (data, cb) => {
@@ -150,5 +155,6 @@ test('storageSet falls back to local on error', async () => {
   });
   assert.ok(syncCalled);
   assert.ok(localCalled);
+  assert.deepEqual(removeKeys, ['a']);
   restoreChrome(original);
 });
