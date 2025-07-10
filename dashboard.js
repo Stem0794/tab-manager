@@ -365,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         manual.className = 'manual-add';
         const inp = document.createElement('input');
         inp.type = 'text';
+        inp.name = 'url';
         inp.placeholder = 'Add URL';
         const btn = document.createElement('button');
         btn.textContent = 'Add';
