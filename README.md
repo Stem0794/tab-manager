@@ -6,7 +6,7 @@ Tab Manager Dashboard is a minimal Chrome extension that lets you organize your 
 
 - **Dashboard view**: Replaces your New Tab page with a dashboard listing your open tabs and saved categories.
 - **Drag and drop**: Drag currently open tabs into a category to save them for later.
-- **Manual entry**: Add URLs to a category using the text field under each category.
+- **Manual entry**: Add URLs to a category using the text field under each category. Favicons are fetched automatically when a URL is added.
 - **Quick open**: Open all tabs in a category with a single click.
 - **Context menu**: Right‑click anywhere and choose "Save all open tabs to category" to archive your session.
 - **Optional auto-close**: After saving via the context menu you can choose to automatically close those tabs.
