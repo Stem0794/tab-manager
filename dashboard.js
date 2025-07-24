@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('drop', (e) => {
+    // Prevent default navigation when dropping links outside of a tab list
+    if (!e.target.closest('.tab-list')) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const raw = e.dataTransfer.getData('text/tab-source');
     console.debug('[document drop]', {
       target: e.target && e.target.className,
